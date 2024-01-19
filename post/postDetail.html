@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa"
+      crossorigin="anonymous"
+    ></script>
+
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pro Digital Academy</title>
+    <link rel="stylesheet" href="../style.css" />
+    <link rel="stylesheet" href="./postDetail.css" />
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/d3-cloud/build/d3.layout.cloud.js"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary navContainer">
+      <div class="container-fluid">
+        <a class="navbar-brand text-white" href="#">Pro Digital Academy</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+          aria-controls="navbarNav"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item">
+              <a class="nav-link text-white" aria-current="page" href="#"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#">Share</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white" href="#">Community</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="commentFont">Content</div>
+    <div class="postDetailContainer">
+      <p class="postDetail">
+        "The fascinating world of technology continues to evolve at a
+        breathtaking pace, bringing forth innovations that were once relegated
+        to the realms of science fiction. In this era of rapid technological
+        advancement, we are witnessing the emergence of cutting-edge
+        developments that promise to reshape our lives in profound ways. From
+        the boundless potential of artificial intelligence to the revolutionary
+        impact of renewable energy sources, the landscape of human knowledge and
+        capability is expanding like never before. As we embark on this journey
+        into the future, it is crucial to recognize the importance of
+        sustainable and ethical approaches to technology. The decisions we make
+        today will have lasting implications on the environment, society, and
+        future generations. Therefore, it is our collective responsibility to
+        ensure that technological progress does not come at the cost of our
+        planet's health or the well-being of its inhabitants. In conclusion, the
+        future of technology holds immense promise and potential. However, it is
+        imperative that we proceed with caution, mindfulness, and a deep
+        commitment to the betterment of humanity and the world we inhabit. By
+        doing so, we can harness the power of technology to create a brighter,
+        more sustainable future for all." This passage reflects on the rapid
+        advancement of technology and the importance of responsible innovation
+        for the future.
+      </p>
+    </div>
+
+    <div class="wordCloudContainer">
+      <button id="toggleWordCloud">Show Word Cloud</button>
+      <!-- Word Cloud Container -->
+      <div
+        id="wordCloud"
+        style="width: 600px; height: 400px; display: none"
+      ></div>
+
+      <!-- Toggle Button -->
+
+      <script>
+        // ...existing word cloud script...
+
+        // Toggle word cloud display
+        document
+          .getElementById("toggleWordCloud")
+          .addEventListener("click", function () {
+            var wordCloud = document.getElementById("wordCloud");
+            var toggleButton = this;
+
+            if (wordCloud.style.display === "none") {
+              wordCloud.style.display = "block";
+              toggleButton.textContent = "Hide Word Cloud";
+            } else {
+              wordCloud.style.display = "none";
+              toggleButton.textContent = "Show Word Cloud";
+            }
+          });
+      </script>
+
+      <div id="wordCloud" style="width: 600px; height: 100px"></div>
+
+      <script>
+        // Extract text from the postDetail and split it into words
+        var text = document.querySelector(".postDetail").innerText;
+        var words = text.split(/\s+/);
+
+        // Count the frequency of each word
+        var frequency = {};
+        words.forEach(function (word) {
+          if (!frequency[word]) {
+            frequency[word] = 0;
+          }
+          frequency[word]++;
+        });
+
+        // Convert the frequency object into an array suitable for d3-cloud
+        var wordData = Object.keys(frequency).map(function (key) {
+          return { text: key, size: frequency[key] };
+        });
+
+        // Set up the word cloud layout
+        var layout = d3.layout
+          .cloud()
+          .size([600, 400])
+          .words(wordData)
+          .padding(5)
+          .rotate(function () {
+            return ~~(Math.random() * 2) * 90;
+          })
+          .font("Impact")
+          .fontSize(function (d) {
+            return d.size * 10;
+          })
+          .on("end", draw);
+
+        layout.start();
+
+        // Draw the word cloud
+        function draw(words) {
+          d3.select("#wordCloud")
+            .append("svg")
+            .attr("width", layout.size()[0])
+            .attr("height", layout.size()[1])
+            .append("g")
+            .attr(
+              "transform",
+              "translate(" +
+                layout.size()[0] / 2 +
+                "," +
+                layout.size()[1] / 2 +
+                ")"
+            )
+            .selectAll("text")
+            .data(words)
+            .enter()
+            .append("text")
+            .style("font-size", function (d) {
+              return d.size + "px";
+            })
+            .style("font-family", "Impact")
+            .attr("text-anchor", "middle")
+            .attr("transform", function (d) {
+              return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
+            })
+            .text(function (d) {
+              return d.text;
+            });
+        }
+      </script>
+    </div>
+
+    <div class="comment-section">
+      <input
+        type="text"
+        id="comment-input"
+        class="comment-input"
+        placeholder="Write a comment..."
+      />
+      <button id="submit-comment" class="comment-btn">Submit</button>
+    </div>
+
+    <div id="comments-display"></div>
+
+    <div class="commentFont">Comment</div>
+    <div class="commentContainer">
+      <p>
+        Some quick example text to build on the card title and make up the bulk
+        of the card's content.
+      </p>
+      <hr />
+      <p>
+        Some quick example text to build on the card title and make up the bulk
+        of the card's content.
+      </p>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Load comments from localStorage
+        loadComments();
+
+        // Event listener for the submit button
+        document
+          .getElementById("submit-comment")
+          .addEventListener("click", function () {
+            var comment = document.getElementById("comment-input").value;
+            saveComment(comment);
+            document.getElementById("comment-input").value = ""; // Clear input field
+          });
+      });
+
+      function saveComment(comment) {
+        if (comment.trim() === "") {
+          return; // Do not save empty comments
+        }
+
+        var comments = JSON.parse(localStorage.getItem("comments") || "[]");
+        comments.push(comment);
+        localStorage.setItem("comments", JSON.stringify(comments));
+
+        displayComment(comment);
+      }
+
+      function loadComments() {
+        var comments = JSON.parse(localStorage.getItem("comments") || "[]");
+        comments.forEach(function (comment) {
+          displayComment(comment);
+        });
+      }
+
+      function displayComment(comment) {
+        var commentsDisplay = document.querySelector(".commentContainer");
+        var commentElement = document.createElement("p");
+        commentElement.textContent = comment;
+        commentsDisplay.appendChild(commentElement);
+
+        var hr = document.createElement("hr");
+        commentsDisplay.appendChild(hr); // Append the horizontal line after the comment
+      }
+    </script>
+  </body>
+</html>
